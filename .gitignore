@@ -1,0 +1,16 @@
+# XAMPP / PHP
+/vendor/
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# Logs & cache
+*.log
+/tmp/
+cache/
+
+# OS files
+.DS_Store
+Thumbs.db
