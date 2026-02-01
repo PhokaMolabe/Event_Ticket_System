@@ -1,7 +1,5 @@
 <?php
 
-// Temporarily disable autoloader for demo
-// require_once __DIR__ . '/../../vendor/autoload.php';
 
 class Config {
     private static $instance = null;
