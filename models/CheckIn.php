@@ -476,7 +476,6 @@ class CheckIn {
         
         // Check ticket type restrictions
         if (!empty($rules['allowed_ticket_types'])) {
-            // This would need to be implemented based on your ticket type logic
         }
         
         // Check time restrictions
