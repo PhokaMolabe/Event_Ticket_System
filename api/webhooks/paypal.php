@@ -24,7 +24,6 @@ class PayPalWebhookHandler {
         $transmissionId = $headers['PAYPAL-TRANSMISSION-SIG'] ?? '';
         $transmissionTime = $headers['PAYPAL-TRANSMISSION-TIME'] ?? '';
         
-        // Verify webhook signature
         if (!$this->verifyWebhookSignature($payload, $sigHeader, $certId, $transmissionId, $transmissionTime)) {
             http_response_code(401);
             echo json_encode(['error' => 'Invalid signature']);
@@ -39,7 +38,6 @@ class PayPalWebhookHandler {
             exit();
         }
         
-        // Handle the event
         switch ($event['event_type']) {
             case 'PAYMENT.AUTHORIZATION.CREATED':
                 $this->handleAuthorizationCreated($event);
@@ -108,7 +106,6 @@ class PayPalWebhookHandler {
                 return;
             }
             
-            // Log authorization
             $transactionData = [
                 'order_id' => $orderId,
                 'transaction_id' => $resource['id'],
@@ -139,7 +136,6 @@ class PayPalWebhookHandler {
                 return;
             }
             
-            // Update payment transaction
             $transactionData = [
                 'order_id' => $orderId,
                 'transaction_id' => $resource['id'],
@@ -154,8 +150,7 @@ class PayPalWebhookHandler {
             ];
             
             $this->db->insert('payment_transactions', $transactionData);
-            
-            // Update order
+           
             $this->orderModel->updatePaymentStatus($orderId, 'completed', [
                 'payment_method' => 'paypal',
                 'payment_gateway' => 'paypal',
@@ -178,7 +173,6 @@ class PayPalWebhookHandler {
                 return;
             }
             
-            // Update payment transaction
             $transactionData = [
                 'order_id' => $orderId,
                 'transaction_id' => $resource['id'],
@@ -194,7 +188,6 @@ class PayPalWebhookHandler {
             
             $this->db->insert('payment_transactions', $transactionData);
             
-            // Update order
             $this->orderModel->updatePaymentStatus($orderId, 'failed', [
                 'payment_method' => 'paypal',
                 'payment_gateway' => 'paypal',
@@ -217,7 +210,6 @@ class PayPalWebhookHandler {
                 return;
             }
             
-            // Update payment transaction
             $transactionData = [
                 'order_id' => $orderId,
                 'transaction_id' => $resource['id'],
@@ -233,7 +225,6 @@ class PayPalWebhookHandler {
             
             $this->db->insert('payment_transactions', $transactionData);
             
-            // Update order
             $this->orderModel->updatePaymentStatus($orderId, 'completed', [
                 'payment_method' => 'paypal',
                 'payment_gateway' => 'paypal',
@@ -256,7 +247,6 @@ class PayPalWebhookHandler {
                 return;
             }
             
-            // Update payment transaction
             $transactionData = [
                 'order_id' => $orderId,
                 'transaction_id' => $resource['id'],
@@ -272,7 +262,6 @@ class PayPalWebhookHandler {
             
             $this->db->insert('payment_transactions', $transactionData);
             
-            // Update order
             $this->orderModel->updatePaymentStatus($orderId, 'failed', [
                 'payment_method' => 'paypal',
                 'payment_gateway' => 'paypal',
@@ -290,14 +279,13 @@ class PayPalWebhookHandler {
             $resource = $event['resource'];
             $saleId = $resource['sale_id'];
             
-            // Find the original transaction
             $transaction = $this->db->fetch(
                 "SELECT * FROM payment_transactions WHERE gateway_transaction_id = ? AND gateway = 'paypal'",
                 [$saleId]
             );
             
             if ($transaction) {
-                // Create refund record
+        
                 $refundData = [
                     'order_id' => $transaction['order_id'],
                     'refund_id' => $resource['id'],
@@ -312,7 +300,6 @@ class PayPalWebhookHandler {
                 
                 $this->db->insert('refunds', $refundData);
                 
-                // Update order status if full refund
                 $order = $this->db->fetch("SELECT * FROM orders WHERE id = ?", [$transaction['order_id']]);
                 if ($order && floatval($resource['amount']['total']) >= $order['total_amount']) {
                     $this->db->update('orders', ['status' => 'refunded'], 'id = ?', [$transaction['order_id']]);
@@ -350,7 +337,6 @@ class PayPalWebhookHandler {
                 return;
             }
             
-            // Update order status
             $this->db->update('orders', 
                 ['status' => 'paid', 'paid_at' => date('Y-m-d H:i:s')], 
                 'id = ?', 
@@ -394,19 +380,16 @@ class PayPalWebhookHandler {
             return null;
         }
         
-        // Parse custom field - it could be JSON or simple string
         $data = json_decode($custom, true);
         if ($data && isset($data['order_id'])) {
             return $data['order_id'];
         }
         
-        // Try to extract order_id from string
         if (strpos($custom, 'order_id:') !== false) {
             $parts = explode('order_id:', $custom);
             return trim($parts[1]);
         }
         
-        // If it's just a number, treat it as order_id
         if (is_numeric($custom)) {
             return $custom;
         }
@@ -428,7 +411,6 @@ class PayPalWebhookHandler {
     }
 }
 
-// Handle the webhook
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $handler = new PayPalWebhookHandler();
     $handler->handle();
