@@ -29,7 +29,7 @@ class CheckIn {
             
             $gateId = $this->db->insert('check_in_gates', $gateData);
             
-            // Log activity
+           
             $this->logActivity($createdBy, 'gate_created', 'check_in_gate', $gateId);
             
             return [
@@ -159,22 +159,20 @@ class CheckIn {
                     return $result;
                 }
                 
-                // Validate gate access
+     
                 $gate = $db->fetch("SELECT * FROM check_in_gates WHERE id = ?", [$gateId]);
                 if (!$gate || !$gate['is_active']) {
                     $result = ['success' => false, 'error' => 'Invalid gate', 'check_in_result' => 'invalid'];
                     $this->logCheckInAttempt($ticketId, $gateId, $deviceId, $operatorId, $result, $scanData);
                     return $result;
                 }
-                
-                // Check gate access rules
+    
                 if (!$this->validateGateAccess($ticket, $gate)) {
                     $result = ['success' => false, 'error' => 'Access denied for this gate', 'check_in_result' => 'invalid'];
                     $this->logCheckInAttempt($ticketId, $gateId, $deviceId, $operatorId, $result, $scanData);
                     return $result;
                 }
-                
-                // Update ticket status
+      
                 $db->update('tickets', [
                     'status' => 'checked_in',
                     'checked_in_at' => date('Y-m-d H:i:s'),
@@ -183,16 +181,13 @@ class CheckIn {
                     'gate_id' => $gateId
                 ], 'id = ?', [$ticketId]);
                 
-                // Update device last sync
                 $db->update('check_in_devices', [
                     'last_sync_at' => date('Y-m-d H:i:s')
                 ], 'id = ?', [$deviceId]);
                 
-                // Log successful check-in
                 $this->logCheckInAttempt($ticketId, $gateId, $deviceId, $operatorId, 
                     ['success' => true, 'check_in_result' => 'success'], $scanData);
                 
-                // Log activity
                 $this->logActivity($operatorId, 'ticket_checked_in', 'ticket', $ticketId, [
                     'gate_id' => $gateId,
                     'device_id' => $deviceId
@@ -215,7 +210,6 @@ class CheckIn {
     }
     
     public function checkInByCode($code, $gateId, $deviceId, $operatorId) {
-        // Try to find ticket by QR code, barcode, or ticket number
         $sql = "
             SELECT t.*, e.title as event_title
             FROM tickets t
@@ -335,7 +329,6 @@ class CheckIn {
         
         $stats = $this->db->fetch($sql, [$eventId]);
         
-        // Calculate check-in rate
         $stats['check_in_rate'] = $stats['total_tickets'] > 0 ? 
             round(($stats['checked_in_count'] / $stats['total_tickets']) * 100, 2) : 0;
         
@@ -404,7 +397,6 @@ class CheckIn {
                     }
                 }
                 
-                // Update device last sync
                 $db->update('check_in_devices', [
                     'last_sync_at' => date('Y-m-d H:i:s')
                 ], 'id = ?', [$deviceId]);
@@ -467,18 +459,16 @@ class CheckIn {
     }
     
     private function validateGateAccess($ticket, $gate) {
-        // If no access rules, allow access
+    
         if (!$gate['access_rules']) {
             return true;
         }
         
         $rules = json_decode($gate['access_rules'], true);
         
-        // Check ticket type restrictions
         if (!empty($rules['allowed_ticket_types'])) {
         }
         
-        // Check time restrictions
         if (!empty($rules['time_restrictions'])) {
             $now = time();
             foreach ($rules['time_restrictions'] as $restriction) {
