@@ -1,10 +1,8 @@
 <?php
 
-// WORKING ENTERPRISE SYSTEM - FULL FUNCTIONALITY
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
-// Currency settings
 $currencies = [
     'USD' => ['symbol' => '$', 'rate' => 1.0, 'name' => 'US Dollar'],
     'EUR' => ['symbol' => '€', 'rate' => 0.85, 'name' => 'Euro'],
@@ -16,7 +14,6 @@ setcookie('preferred_currency', $selectedCurrency, time() + (86400 * 30), '/');
 
 $page = $_GET['page'] ?? 'dashboard';
 
-// Enterprise data
 $stats = [
     'events' => 15, 'orders' => 245, 'revenue' => 125000, 'checkins' => 89,
     'tickets_sold' => 1567, 'avg_ticket_price' => 85, 'conversion_rate' => 78.5
@@ -216,9 +213,9 @@ function getConcertStatus($sold, $total) {
                             <h3>🎉 Enterprise System Active!</h3>
                             <p>All systems operational and ready for business.</p>
                             <div style="margin-top: 20px;">
-                                <span class="badge badge-success">✅ Database Connected</span>
-                                <span class="badge badge-success">✅ All Features Active</span>
-                                <span class="badge badge-success">✅ Multi-Currency Ready</span>
+                                <span class="badge badge-success"> Database Connected</span>
+                                <span class="badge badge-success"> All Features Active</span>
+                                <span class="badge badge-success"> Multi-Currency Ready</span>
                             </div>
                         </div>
                     </div>
@@ -397,9 +394,9 @@ function getConcertStatus($sold, $total) {
                             <h3>Advanced <?php echo ucfirst($page); ?> System</h3>
                             <p>Enterprise-grade <?php echo $page; ?> management with full functionality activated!</p>
                             <div style="margin-top: 20px;">
-                                <span class="badge badge-success">✅ Fully Activated</span>
-                                <span class="badge badge-success">✅ Enterprise Features</span>
-                                <span class="badge badge-success">✅ Multi-Currency</span>
+                                <span class="badge badge-success"> Fully Activated</span>
+                                <span class="badge badge-success"> Enterprise Features</span>
+                                <span class="badge badge-success"> Multi-Currency</span>
                             </div>
                         </div>
                     </div>
@@ -455,7 +452,7 @@ function getConcertStatus($sold, $total) {
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            showNotification('🎉 EventPro Enterprise Final Ready!', 'success', 5000);
+            showNotification(' EventPro Enterprise Final Ready!', 'success', 5000);
         });
     </script>
 </body>
