@@ -1,12 +1,10 @@
 <?php
 
-// ENHANCED CUSTOMER WEBSITE - EXACT DESIGN FROM IMAGE
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
 $db = Database::getInstance();
 
-// Enhanced events data matching the image design
 $events = [
     [
         'id' => 1,
@@ -235,8 +233,7 @@ function getAvailabilityStatus($sold, $total) {
             margin-bottom: 30px;
             opacity: 0.9;
         }
-        
-        /* Filter Section */
+    
         .filter-section {
             background: white;
             padding: 30px 0;
@@ -316,7 +313,6 @@ function getAvailabilityStatus($sold, $total) {
             gap: 30px;
         }
         
-        /* Event Card - Exact Design from Image */
         .event-card {
             background: white;
             border-radius: 12px;
@@ -482,7 +478,6 @@ function getAvailabilityStatus($sold, $total) {
             color: #ccc;
         }
         
-        /* Responsive */
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2.5rem;
@@ -507,7 +502,6 @@ function getAvailabilityStatus($sold, $total) {
             }
         }
         
-        /* Loading Animation */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -668,15 +662,14 @@ function getAvailabilityStatus($sold, $total) {
     </footer>
 
     <script>
-        // Filter functionality
+        
         function filterEvents(category, button) {
-            // Update active button
+           
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             button.classList.add('active');
             
-            // Filter events
             const cards = document.querySelectorAll('.event-card');
             cards.forEach(card => {
                 if (category === 'all' || card.dataset.category === category) {
@@ -687,7 +680,6 @@ function getAvailabilityStatus($sold, $total) {
             });
         }
         
-        // Search functionality
         function searchEvents(searchTerm) {
             const cards = document.querySelectorAll('.event-card');
             const term = searchTerm.toLowerCase();
@@ -701,11 +693,9 @@ function getAvailabilityStatus($sold, $total) {
             });
         }
         
-        // Get tickets function
         function getTickets(eventId) {
             console.log('Getting tickets for event:', eventId);
             
-            // Create modal for ticket selection
             const modal = document.createElement('div');
             modal.style.cssText = `
                 position: fixed;
@@ -780,7 +770,6 @@ function getAvailabilityStatus($sold, $total) {
             if (modal) modal.remove();
         }
         
-        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
