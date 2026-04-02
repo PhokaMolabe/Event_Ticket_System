@@ -64,16 +64,13 @@ class EventController {
             return;
         }
         
-        // Check permissions for unpublished events
         if ($event['status'] !== 'published' && $event['status'] !== 'live') {
             $this->requireAuth();
             $this->requirePermission('events.view_unpublished');
         }
-        
-        // Add ticket types
+
         $event['ticket_types'] = $this->eventModel->getTicketTypes($id);
-        
-        // Add event stats if user has permission
+    
         if ($this->isAuthenticated() && $this->hasPermission('events.view_stats')) {
             $event['stats'] = $this->eventModel->getEventStats($id);
         }
@@ -94,7 +91,7 @@ class EventController {
             return;
         }
         
-        // Add ticket types
+       
         $event['ticket_types'] = $this->eventModel->getTicketTypes($event['id']);
         
         $this->jsonResponse(['success' => true, 'event' => $event]);
@@ -110,7 +107,6 @@ class EventController {
         $page = (int)($_GET['page'] ?? 1);
         $perPage = (int)($_GET['per_page'] ?? 20);
         
-        // Limit per page to reasonable values
         $perPage = min(max($perPage, 1), 100);
         
         $result = $this->eventModel->getList($filters, $page, $perPage);
