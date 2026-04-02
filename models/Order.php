@@ -20,7 +20,6 @@ class Order {
                 $uuid = Ramsey\Uuid\Uuid::uuid4()->toString();
                 $orderNumber = $this->generateOrderNumber();
                 
-                // Calculate totals
                 $subtotal = 0;
                 $taxAmount = 0;
                 $discountAmount = 0;
@@ -60,7 +59,6 @@ class Order {
                 
                 $orderId = $db->insert('orders', $orderData);
                 
-                // Create order items
                 foreach ($data['items'] as $item) {
                     $orderItemData = [
                         'order_id' => $orderId,
@@ -76,12 +74,10 @@ class Order {
                     ];
                     
                     $orderItemId = $db->insert('order_items', $orderItemData);
-                    
-                    // Update ticket availability
+               
                     $this->updateTicketAvailability($item['event_id'], $item['ticket_type_id'], $item['quantity'], 'hold');
                 }
-                
-                // Log activity
+   
                 $this->logActivity($data['user_id'], 'order_created', 'order', $orderId);
                 
                 return [
@@ -193,7 +189,6 @@ class Order {
                 [$orderId]
             );
             
-            // Log activity
             $this->logActivity($updatedBy, 'order_status_updated', 'order', $orderId, ['new_status' => $status]);
             
             return ['success' => true];
@@ -225,7 +220,6 @@ class Order {
             
             $this->db->update('orders', $updateData, 'id = ?', [$orderId]);
             
-            // If payment completed, confirm tickets
             if ($paymentStatus === 'completed') {
                 $this->confirmTickets($orderId);
             }
@@ -239,7 +233,7 @@ class Order {
     public function cancel($orderId, $reason = null, $cancelledBy = null) {
         try {
             return $this->db->transaction(function($db) use ($orderId, $reason, $cancelledBy) {
-                // Update order status
+
                 $db->update('orders', 
                     [
                         'status' => 'cancelled',
@@ -249,21 +243,18 @@ class Order {
                     [$orderId]
                 );
                 
-                // Cancel tickets
                 $db->update('tickets', 
                     ['status' => 'cancelled'], 
                     'order_id = ?', 
                     [$orderId]
                 );
-                
-                // Release held tickets
+            
                 $orderItems = $db->fetchAll("SELECT * FROM order_items WHERE order_id = ?", [$orderId]);
                 
                 foreach ($orderItems as $item) {
                     $this->updateTicketAvailability($item['event_id'], $item['ticket_type_id'], $item['quantity'], 'release');
                 }
                 
-                // Log activity
                 $this->logActivity($cancelledBy, 'order_cancelled', 'order', $orderId, ['reason' => $reason]);
                 
                 return ['success' => true];
@@ -296,7 +287,6 @@ class Order {
                 
                 $db->insert('refunds', $refundData);
                 
-                // Update order status if full refund
                 if ($amount >= $order['total_amount']) {
                     $db->update('orders', 
                         ['status' => 'refunded'], 
@@ -311,7 +301,6 @@ class Order {
                     );
                 }
                 
-                // Log activity
                 $this->logActivity($processedBy, 'order_refunded', 'order', $orderId, [
                     'amount' => $amount,
                     'reason' => $reason
@@ -432,8 +421,7 @@ class Order {
                 
                 $this->db->insert('tickets', $ticketData);
             }
-            
-            // Update ticket availability
+     
             $this->updateTicketAvailability($item['event_id'], $item['ticket_type_id'], $item['quantity'], 'sold');
         }
     }
