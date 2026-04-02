@@ -78,7 +78,6 @@ class StripeWebhookHandler {
                     return;
                 }
                 
-                // Update payment transaction
                 $transactionData = [
                     'order_id' => $orderId,
                     'transaction_id' => $paymentIntent->id,
@@ -94,14 +93,12 @@ class StripeWebhookHandler {
                 
                 $db->insert('payment_transactions', $transactionData);
                 
-                // Update order
                 $this->orderModel->updatePaymentStatus($orderId, 'completed', [
                     'payment_method' => 'credit_card',
                     'payment_gateway' => 'stripe',
                     'payment_reference' => $paymentIntent->id
                 ]);
                 
-                // Log webhook event
                 $this->logWebhookEvent('payment_intent.succeeded', $paymentIntent->id, $orderId);
             });
         } catch (Exception $e) {
@@ -118,7 +115,6 @@ class StripeWebhookHandler {
                 return;
             }
             
-            // Update payment transaction
             $transactionData = [
                 'order_id' => $orderId,
                 'transaction_id' => $paymentIntent->id,
@@ -134,14 +130,12 @@ class StripeWebhookHandler {
             
             $this->db->insert('payment_transactions', $transactionData);
             
-            // Update order
             $this->orderModel->updatePaymentStatus($orderId, 'failed', [
                 'payment_method' => 'credit_card',
                 'payment_gateway' => 'stripe',
                 'payment_reference' => $paymentIntent->id
             ]);
             
-            // Log webhook event
             $this->logWebhookEvent('payment_intent.payment_failed', $paymentIntent->id, $orderId);
         } catch (Exception $e) {
             error_log('Stripe webhook error (payment failed): ' . $e->getMessage());
@@ -157,7 +151,6 @@ class StripeWebhookHandler {
                 return;
             }
             
-            // Update payment transaction
             $transactionData = [
                 'order_id' => $orderId,
                 'transaction_id' => $paymentIntent->id,
@@ -172,14 +165,14 @@ class StripeWebhookHandler {
             
             $this->db->insert('payment_transactions', $transactionData);
             
-            // Update order
+
             $this->orderModel->updatePaymentStatus($orderId, 'cancelled', [
                 'payment_method' => 'credit_card',
                 'payment_gateway' => 'stripe',
                 'payment_reference' => $paymentIntent->id
             ]);
             
-            // Log webhook event
+
             $this->logWebhookEvent('payment_intent.canceled', $paymentIntent->id, $orderId);
         } catch (Exception $e) {
             error_log('Stripe webhook error (payment canceled): ' . $e->getMessage());
@@ -190,21 +183,21 @@ class StripeWebhookHandler {
         try {
             $paymentIntentId = $charge->payment_intent;
             
-            // Find the transaction
+    
             $transaction = $this->db->fetch(
                 "SELECT * FROM payment_transactions WHERE gateway_transaction_id = ? AND gateway = 'stripe'",
                 [$paymentIntentId]
             );
             
             if ($transaction) {
-                // Update transaction with charge details
+    
                 $this->db->update('payment_transactions', [
                     'status' => 'completed',
                     'gateway_response' => json_encode($charge),
                     'processed_at' => date('Y-m-d H:i:s', $charge->created)
                 ], 'id = ?', [$transaction['id']]);
                 
-                // Log webhook event
+        
                 $this->logWebhookEvent('charge.succeeded', $charge->id, $transaction['order_id']);
             }
         } catch (Exception $e) {
@@ -216,21 +209,21 @@ class StripeWebhookHandler {
         try {
             $paymentIntentId = $charge->payment_intent;
             
-            // Find the transaction
+           
             $transaction = $this->db->fetch(
                 "SELECT * FROM payment_transactions WHERE gateway_transaction_id = ? AND gateway = 'stripe'",
                 [$paymentIntentId]
             );
             
             if ($transaction) {
-                // Update transaction with charge details
+              
                 $this->db->update('payment_transactions', [
                     'status' => 'failed',
                     'gateway_response' => json_encode($charge),
                     'failure_reason' => $charge->failure_message ?? 'Charge failed'
                 ], 'id = ?', [$transaction['id']]);
                 
-                // Log webhook event
+               
                 $this->logWebhookEvent('charge.failed', $charge->id, $transaction['order_id']);
             }
         } catch (Exception $e) {
@@ -242,7 +235,7 @@ class StripeWebhookHandler {
         try {
             $chargeId = $dispute->charge;
             
-            // Find the transaction
+            
             $transaction = $this->db->fetch(
                 "SELECT pt.*, o.user_id FROM payment_transactions pt 
                  LEFT JOIN orders o ON pt.order_id = o.id 
@@ -251,7 +244,7 @@ class StripeWebhookHandler {
             );
             
             if ($transaction) {
-                // Create dispute record
+            
                 $disputeData = [
                     'order_id' => $transaction['order_id'],
                     'dispute_id' => $dispute->id,
@@ -266,10 +259,8 @@ class StripeWebhookHandler {
                 
                 $this->db->insert('disputes', $disputeData);
                 
-                // Log webhook event
                 $this->logWebhookEvent('charge.dispute.created', $dispute->id, $transaction['order_id']);
                 
-                // Send notification to admin
                 $this->sendDisputeNotification($transaction, $dispute);
             }
         } catch (Exception $e) {
@@ -291,8 +282,7 @@ class StripeWebhookHandler {
     }
     
     private function sendDisputeNotification($transaction, $dispute) {
-        // This would integrate with your notification system
-        // Send email/SMS to admin about the dispute
+        
         $message = sprintf(
             "Payment dispute created for Order #%d. Amount: $%.2f. Reason: %s",
             $transaction['order_id'],
@@ -302,11 +292,9 @@ class StripeWebhookHandler {
         
         error_log("DISPUTE NOTIFICATION: " . $message);
         
-        // You could integrate with PHPMailer here to send actual emails
     }
 }
 
-// Handle the webhook
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $handler = new StripeWebhookHandler();
     $handler->handle();
