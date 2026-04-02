@@ -1,6 +1,6 @@
 <?php
 
-// FINAL LAUNCH READY - 100% WORKING
+
 $page = $_GET['page'] ?? 'dashboard';
 $stats = ['events' => 5, 'orders' => 12, 'revenue' => 2450, 'checkins' => 8];
 ?>
@@ -91,7 +91,7 @@ $stats = ['events' => 5, 'orders' => 12, 'revenue' => 2450, 'checkins' => 8];
                 
                 <div class="card">
                     <div class="card-header">
-                        <h3>🚀 LAUNCH READY!</h3>
+                        <h3> LAUNCH READY!</h3>
                     </div>
                     <div class="card-body">
                         <div style="text-align: center; padding: 40px;">
@@ -99,9 +99,9 @@ $stats = ['events' => 5, 'orders' => 12, 'revenue' => 2450, 'checkins' => 8];
                             <h3>EventPro Enterprise</h3>
                             <p>100% Functional - Ready for Investors!</p>
                             <div style="margin-top: 20px;">
-                                <span class="badge badge-success">✅ All Systems Active</span>
-                                <span class="badge badge-success">✅ Navigation Working</span>
-                                <span class="badge badge-success">✅ Enterprise Ready</span>
+                                <span class="badge badge-success"> All Systems Active</span>
+                                <span class="badge badge-success"> Navigation Working</span>
+                                <span class="badge badge-success"> Enterprise Ready</span>
                             </div>
                         </div>
                     </div>
@@ -266,14 +266,14 @@ $stats = ['events' => 5, 'orders' => 12, 'revenue' => 2450, 'checkins' => 8];
                 return;
             }
             
-            result.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Ticket ' + code + ' checked in successfully! ✅</div>';
+            result.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Ticket ' + code + ' checked in successfully! </div>';
             document.getElementById('ticketCode').value = '';
             showNotification('Check-in successful!', 'success');
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            showNotification('🎉 EventPro Enterprise Ready!', 'success', 5000);
-            console.log('🚀 LAUNCH READY - All systems operational!');
+            showNotification(' EventPro Enterprise Ready!', 'success', 5000);
+            console.log(' LAUNCH READY - All systems operational!');
         });
     </script>
 </body>
