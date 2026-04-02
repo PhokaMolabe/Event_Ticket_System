@@ -262,7 +262,6 @@ class Analytics {
         
         $data = $this->db->fetch($sql, [$eventId]);
         
-        // Calculate conversion rates
         $data['cart_conversion_rate'] = $data['page_views'] > 0 ? 
             round(($data['cart_additions'] / $data['page_views']) * 100, 2) : 0;
         
@@ -362,8 +361,7 @@ class Analytics {
         }
         
         $date = date('Y-m-d');
-        
-        // Get analytics data for today
+    
         $sql = "
             SELECT 
                 COUNT(DISTINCT CASE WHEN v.action = 'page_view' THEN v.user_id END) as views,
@@ -382,11 +380,9 @@ class Analytics {
         
         $analytics = $this->db->fetch($sql, [$date, $date, $eventId]);
         
-        // Calculate conversion rate
         $analytics['conversion_rate'] = $analytics['views'] > 0 ? 
             round(($analytics['orders'] / $analytics['views']) * 100, 2) : 0;
         
-        // Update or insert analytics record
         $existing = $this->db->fetch(
             "SELECT id FROM analytics_events WHERE event_id = ? AND date = ?", 
             [$eventId, $date]
@@ -415,7 +411,7 @@ class Analytics {
             $csvRow = [];
             foreach ($headers as $header) {
                 $value = $row[$header] ?? '';
-                // Escape commas and quotes
+
                 if (strpos($value, ',') !== false || strpos($value, '"') !== false) {
                     $value = '"' . str_replace('"', '""', $value) . '"';
                 }
@@ -428,8 +424,7 @@ class Analytics {
     }
     
     private function generateExcel($data, $reportType) {
-        // This would use a library like PhpSpreadsheet to generate Excel files
-        // For now, return CSV as fallback
+    
         return $this->generateCSV($data);
     }
     
