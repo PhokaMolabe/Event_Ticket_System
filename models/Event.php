@@ -45,7 +45,6 @@ class Event {
         try {
             $eventId = $this->db->insert('events', $eventData);
             
-            // Log activity
             $this->logActivity($createdBy, 'event_created', 'event', $eventId);
             
             return [
@@ -91,7 +90,6 @@ class Event {
         try {
             $this->db->update('events', $updateData, 'id = ?', [$id]);
             
-            // Log activity
             $this->logActivity($updatedBy, 'event_updated', 'event', $id);
             
             return ['success' => true];
@@ -249,7 +247,6 @@ class Event {
                 [$id]
             );
             
-            // Log activity
             $this->logActivity($publishedBy, 'event_published', 'event', $id);
             
             return ['success' => true];
@@ -265,15 +262,13 @@ class Event {
                 'id = ?', 
                 [$id]
             );
-            
-            // Cancel all pending orders for this event
+           
             $this->db->update('orders', 
                 ['status' => 'cancelled'], 
                 'event_id = ? AND status IN ("pending", "payment_pending")', 
                 [$id]
             );
             
-            // Log activity
             $this->logActivity($cancelledBy, 'event_cancelled', 'event', $id, ['reason' => $reason]);
             
             return ['success' => true];
@@ -376,7 +371,6 @@ class Event {
         $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
         $slug = trim($slug, '-');
         
-        // Check if slug exists and make unique
         $originalSlug = $slug;
         $counter = 1;
         
